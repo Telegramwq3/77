@@ -1,0 +1,28 @@
+!pip install pyTelegramBotAPI openai
+import telebot
+import openai
+
+TELEGRAM_BOT_TOKEN = "7870070803:AAF-dEiJ8EXZXISkQMC_tPki541AhCkidWg"
+OPENAI_API_KEY = "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"
+
+bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
+openai.api_key = OPENAI_API_KEY
+
+# استقبال أمر /start
+@bot.message_handler(commands=['start'])
+def welcome_message(message):
+    bot.reply_to(message, "👋 أهلاً! أرسل لي وصف اللوجو الذي تريده وسأقوم بإنشائه.")
+
+# التعامل مع الرسائل الأخرى
+@bot.message_handler(func=lambda message: True)
+def generate_logo(message):
+    prompt = message.text  # أخذ النص الذي يرسله المستخدم كطلب للوجو
+    response = openai.Image.create(  # إرسال الطلب إلى OpenAI لإنشاء صورة
+        prompt=prompt,
+        n=1,
+        size="1024x1024"
+    )
+    image_url = response['data'][0]['url']  # الحصول على رابط الصورة الناتجة
+    bot.send_photo(message.chat.id, image_url, caption="🎨 هذا هو اللوجو الخاص بك!")  # إرسال الصورة للمستخدم
+
+bot.polling()  # بدء البوت للعمل
